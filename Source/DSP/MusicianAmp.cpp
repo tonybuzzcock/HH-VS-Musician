@@ -83,7 +83,8 @@ void MusicianAmp::buildCircuits()
         n.addInput (n1, kPickupR + 10000.0);   // pickup + R1 10K
         n.addC (n1, n2, 0.1e-6);               // C1
         n.addR (n2, 0, 100000.0);              // R3
-        n.addR (o, n3, 22000.0);               // R9
+        n.addR (o, n3, 33000.0);               // R9: 22K on the drawing; 33K gives the extra
+                                               // gain the owner's amp has by ear
         n.addC (o, n3, 68.0e-12);              // C4
         n.addR (n3, n4, 2700.0);               // R8
         n.addC (n4, n5, 6.8e-6);               // C3
@@ -162,7 +163,8 @@ void MusicianAmp::buildCircuits()
         n.addR (t14, 0, 10000.0);              // R12
         n.addC (t13, N, 1000.0e-12);           // C6
         n.addR (b10, N, 100000.0);             // R5
-        n.addC (N, m, 1000.0e-12);             // C7
+        n.addC (N, m, 2200.0e-12);             // C7: 1,000 pF on the drawing; 2,200 pF matches
+                                               // the owner's amp by ear (Ch 2 was a little thin)
         n.addR (m, o, 1.5e6);                  // R10
         n.setOpAmp (0, m, o, kGbw741, kSlew741, kSwing741, kKnee741);
         ch2bOut = o;

@@ -62,9 +62,11 @@ The first 14 parameters follow the front panel (`Docs/front_panel.jpg`) left to 
 
 ## Readings and assumptions to check
 
-- **Ch 2 C7 is 1,000 pF as drawn** (Ch 1 uses 0.1 µF in the same place). That makes
-  Ch 2 bright, with the bass rolling off below about 2 kHz. If your amp's Ch 2
-  sounds fuller than the plugin, this value is the first suspect.
+- **Ch 2 C7** is 1,000 pF on the drawing (Ch 1 uses 0.1 µF in the same place). As drawn,
+  Ch 2 came out a little thin next to the real amp, so the model uses 2,200 pF.
+  Going to 4,700 pF would fill it out further.
+- **Ch 1 R9** is 22K on the drawing. Compared with the real amp the Gain knob needed a
+  little more gain, so the model uses 33K (about +3.5 dB at every Gain setting).
 - "25K R/LOG" Gain and Volume pots are taken as reverse-log.
 - Ch 2 is played through Input 1 with Input 2 empty (its jack grounds R2).
 - L1 has no value on the sheet; 3 µH is used (it only matters above the audio band).
