@@ -218,8 +218,18 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
     drawText ("REVERB AMPLIFIER", boldFont (10.0), ink, 1095, 198);
     drawText ("100 WATTS", plainFont (10.0), ink, 1095, 213);
 
-    // Strip title
-    drawTextLeft ("PLUGIN", boldFont (11.0), ink, 22, 292);
+    // Owner's mark in the strip's corner: red TB over "Electronic", on an opaque plate
+    {
+        const NSRect plate = NSMakeRect (14.5, 262.5, 100.0, 56.0);
+        NSBezierPath* pp = [NSBezierPath bezierPathWithRoundedRect: plate xRadius: 4 yRadius: 4];
+        [rgb (246, 246, 244) set];
+        [pp fill];
+        [rgb (60, 62, 65) set];
+        [pp setLineWidth: 1.0];
+        [pp stroke];
+        drawText ("TB", boldFont (28.0), rgb (200, 30, 30), NSMidX (plate), plate.origin.y + 21.0);
+        drawText ("Electronic", plainFont (12.0), ink, NSMidX (plate), plate.origin.y + 44.0);
+    }
 }
 
 - (void) drawScaleForCtl: (const Ctl&) c
