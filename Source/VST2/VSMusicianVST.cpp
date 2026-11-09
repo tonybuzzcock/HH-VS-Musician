@@ -42,9 +42,12 @@ enum Param
 
 enum Kind { kKnob, kTone, kSwitch, kVoiceSw, kChannelSel, kDb12, kDb24 };
 
+// Labels follow the owner's naming: the Volume channel is Channel 1 and the
+// Gain/V-S channel is Channel 2. (The service drawing numbers them the other
+// way round, which is what the enum and DSP names use.)
 const char* const kParamNames[kNumParams] = {
-    "2 Volume", "2 Bass", "2 Treble", "2 Reverb",
-    "1 Gain", "1 Bass", "Middle", "1 Treble", "Presence", "1 Reverb",
+    "1 Volume", "1 Bass", "1 Treble", "1 Reverb",
+    "2 Gain", "2 Bass", "Middle", "2 Treble", "Presence", "2 Reverb",
     "Voice", "ValveSnd", "M Reverb", "M Volume",
     "Channel", "Speaker", "Input", "Output"
 };
@@ -58,14 +61,22 @@ const float kDefaults[kNumParams] = {
     0.5f, 0.5f, 0.5f, 0.0f,
     0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f,
     0.0f, 0.0f, 0.3f, 0.35f,
-    0.0f, 1.0f, 0.5f, 0.5f
+    0.5f, 1.0f, 0.5f, 0.5f
 };
 
 const double kInputRangeDb  = 12.0;
 const double kOutputRangeDb = 24.0;
 
 inline bool isOn (float v) { return v >= 0.5f; }
-inline int channelOf (float v) { return v < (1.0f / 3.0f) ? 0 : (v < (2.0f / 3.0f) ? 1 : 2); }
+// Selector positions read 1 / 2 / 1+2 in the owner's numbering; returns the DSP's channel.
+inline int channelSlot (float v) { return v < (1.0f / 3.0f) ? 0 : (v < (2.0f / 3.0f) ? 1 : 2); }
+inline int channelOf (float v)
+{
+    const int slot = channelSlot (v);
+    return slot == 0 ? hhvs::MusicianAmp::kChannel2      // "1": Volume channel (drawing's Ch 2)
+         : slot == 1 ? hhvs::MusicianAmp::kChannel1      // "2": Gain channel (drawing's Ch 1)
+                     : hhvs::MusicianAmp::kChannelBoth;
+}
 
 void copyString (char* dst, const char* src, size_t maxLen)
 {
@@ -257,7 +268,7 @@ private:
             case kVoiceSw:    std::strcpy (buf, isOn (v) ? "Heavy" : "Light"); break;
             case kChannelSel:
             {
-                const int c = channelOf (v);
+                const int c = channelSlot (v);
                 std::strcpy (buf, c == 0 ? "1" : (c == 1 ? "2" : "1+2"));
                 break;
             }

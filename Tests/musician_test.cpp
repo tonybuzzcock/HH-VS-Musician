@@ -10,6 +10,9 @@
 // 5. Automation of every control while playing
 // 6. CPU per second of audio
 // 7. Demo renders (32-bit float WAV)
+//
+// Channel names here follow the service drawing (Ch 1 = Gain board AS00016,
+// Ch 2 = Volume board AS00017); the plugin labels them the other way round.
 
 #include "../Source/DSP/MusicianAmp.h"
 
@@ -417,12 +420,12 @@ int main (int argc, char** argv)
         const std::vector<float> riff = makeRiff();
         struct Demo { const char* file; int ch; double gain, vol, mvol, mrev; bool heavy, valve, rev1, rev2, spk; double out; };
         const Demo demos[] = {
-            { "ch1_clean_reverb.wav",    0, 0.25, 0.5, 0.45, 0.40, false, false, true,  false, true,  0.0 },
-            { "ch1_vs_sustain.wav",      0, 0.85, 0.5, 0.30, 0.25, false, false, true,  false, true,  0.0 },
-            { "ch1_heavy_valve.wav",     0, 1.00, 0.5, 0.30, 0.25, true,  true,  true,  false, true,  0.0 },
-            { "ch2_normal.wav",          1, 0.50, 0.6, 0.50, 0.30, false, false, false, true,  true,  0.0 },
+            { "ch2_gain_clean_reverb.wav",    0, 0.25, 0.5, 0.45, 0.40, false, false, true,  false, true,  0.0 },
+            { "ch2_gain_vs_sustain.wav",      0, 0.85, 0.5, 0.30, 0.25, false, false, true,  false, true,  0.0 },
+            { "ch2_gain_heavy_valve.wav",     0, 1.00, 0.5, 0.30, 0.25, true,  true,  true,  false, true,  0.0 },
+            { "ch1_volume_channel.wav",          1, 0.50, 0.6, 0.50, 0.30, false, false, false, true,  true,  0.0 },
             { "power_amp_cranked.wav",   0, 0.50, 0.5, 1.00, 0.20, false, false, true,  false, true, -10.0 },
-            { "ch1_vs_no_speaker.wav",   0, 0.85, 0.5, 0.30, 0.25, false, false, true,  false, false, -6.0 },
+            { "ch2_gain_no_speaker.wav",   0, 0.85, 0.5, 0.30, 0.25, false, false, true,  false, false, -6.0 },
         };
         for (size_t i = 0; i < sizeof (demos) / sizeof (demos[0]); ++i)
         {

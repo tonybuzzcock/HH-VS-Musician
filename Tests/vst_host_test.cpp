@@ -103,12 +103,12 @@ int main (int argc, char** argv)
     call (e, effSetBlockSize, 0, 512);
 
     std::printf ("\nParameters\n");
-    const char* expectNames[18] = { "2 Volume", "2 Bass", "2 Treble", "2 Reverb",
-                                    "1 Gain", "1 Bass", "Middle", "1 Treble", "Presence", "1 Reverb",
+    const char* expectNames[18] = { "1 Volume", "1 Bass", "1 Treble", "1 Reverb",
+                                    "2 Gain", "2 Bass", "Middle", "2 Treble", "Presence", "2 Reverb",
                                     "Voice", "ValveSnd", "M Reverb", "M Volume",
                                     "Channel", "Speaker", "Input", "Output" };
     const char* expectDisp[18]  = { "5.0", "0", "0", "Off", "5.0", "0", "0", "0", "0", "On",
-                                    "Light", "Off", "3.0", "3.5", "1", "On", "+0.0", "+0.0" };
+                                    "Light", "Off", "3.0", "3.5", "2", "On", "+0.0", "+0.0" };
     for (int i = 0; i < 18; ++i)
     {
         char name[64] = { 0 }, disp[64] = { 0 }, label[64] = { 0 };
@@ -145,6 +145,10 @@ int main (int argc, char** argv)
     call (e, effGetParamDisplay, 14, 0, buf);
     check (std::strcmp (buf, "1+2") == 0, "Channel selector reads 1 / 2 / 1+2");
     e->setParameter (e, 14, 0.0f);
+    std::memset (buf, 0, sizeof (buf));
+    call (e, effGetParamDisplay, 14, 0, buf);
+    check (std::strcmp (buf, "1") == 0, "Channel selector starts at 1");
+    e->setParameter (e, 14, 0.5f);
     check (call (e, effGetTailSize) > 0, "reports a reverb tail");
     e->setParameter (e, 99, 0.5f);   // must be ignored, not crash
     check (e->getParameter (e, 99) == 0.0f, "invalid parameter index is harmless");
@@ -212,7 +216,7 @@ int main (int argc, char** argv)
 
     // Silence in -> settles to silence out (no DC, no oscillation)
     {
-        e->setParameter (e, 9, 0.0f);    // Ch 1 Reverb off so the spring tail is not measured
+        e->setParameter (e, 9, 0.0f);    // "2 Reverb" (Gain channel) off so the spring tail is not measured
         std::vector<float> z (sr * 4, 0.0f), oa (sr * 4), ob (sr * 4);
         std::vector<float> z2 (sr * 4, 0.0f);
         runBlocks (e, z, z2, oa, ob, 512);

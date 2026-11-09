@@ -12,19 +12,23 @@ AS00014/4 output driver sheet, driving an 8 ohm 2x12 cabinet with two 1977 H/H
 ## Controls
 
 The first 14 parameters follow the front panel (`Docs/front_panel.jpg`) left to right.
+Channel numbering follows the owner's amp: **Channel 1** is the Volume channel and
+**Channel 2** is the Gain (V-S) channel. The service drawing numbers them the other
+way round (Volume = AS00017 "CH 2", Gain = AS00016 "CH 1"), and the source code
+keeps the drawing's names.
 
 | # | Name | Panel control | Range |
 |---|------|---------------|-------|
-| 1 | 2 Volume | Ch 2 Volume | 0 – 10 |
-| 2 | 2 Bass | Ch 2 Bass | −5 · 0 · +5 |
-| 3 | 2 Treble | Ch 2 Treble | −5 · 0 · +5 |
-| 4 | 2 Reverb | Ch 2 Reverb switch | Off / On |
-| 5 | 1 Gain | Ch 1 Gain | 0 – 10 |
-| 6 | 1 Bass | Ch 1 Bass | −5 · 0 · +5 |
+| 1 | 1 Volume | Ch 1 Volume | 0 – 10 |
+| 2 | 1 Bass | Ch 1 Bass | −5 · 0 · +5 |
+| 3 | 1 Treble | Ch 1 Treble | −5 · 0 · +5 |
+| 4 | 1 Reverb | Ch 1 Reverb switch | Off / On |
+| 5 | 2 Gain | Ch 2 Gain | 0 – 10 |
+| 6 | 2 Bass | Ch 2 Bass | −5 · 0 · +5 |
 | 7 | Middle | Middle | −5 · 0 · +5 |
-| 8 | 1 Treble | Ch 1 Treble | −5 · 0 · +5 |
+| 8 | 2 Treble | Ch 2 Treble | −5 · 0 · +5 |
 | 9 | Presence | Presence | −5 · 0 · +5 |
-| 10 | 1 Reverb | Ch 1 Reverb switch | Off / On |
+| 10 | 2 Reverb | Ch 2 Reverb switch | Off / On |
 | 11 | Voice | Voice | Light / Heavy |
 | 12 | ValveSnd | Valve Sound | Off / On |
 | 13 | M Reverb | Master Reverb | 0 – 10 |
@@ -39,10 +43,10 @@ The first 14 parameters follow the front panel (`Docs/front_panel.jpg`) left to 
 **From the component values on the drawing** (nodal circuit solver, 4x oversampled,
 741 op-amps with 1 MHz gain-bandwidth, 0.5 V/µs slew and ±14 V swing):
 
-- Ch 1: 2N5089 long-tail pair + 741 gain stage with the dual-action Gain pot,
+- Gain channel (Ch 2 here, AS00016): 2N5089 long-tail pair + 741 gain stage with the dual-action Gain pot,
   R22 switched in by Voice (S1B) for Heavy, the passive Baxandall Bass/Treble,
   and the 741 with 1M5 feedback whose clipping gives the V-S sustain
-- Ch 2: 741 gain stage with dual-action Volume, Baxandall Bass/Treble, 741 with 1M5 feedback
+- Volume channel (Ch 1 here, AS00017): 741 gain stage with dual-action Volume, Baxandall Bass/Treble, 741 with 1M5 feedback
 - Reverb driver and recovery stages (AS00018) and the Master Reverb pot
 - Power amp (AS00014/4): closed-loop gain ×39 with its input and feedback-leg
   low-cut, slew limit, clipping against ±48 V rails that sag through the 80 VA
@@ -62,13 +66,13 @@ The first 14 parameters follow the front panel (`Docs/front_panel.jpg`) left to 
 
 ## Readings and assumptions to check
 
-- **Ch 2 C7** is 1,000 pF on the drawing (Ch 1 uses 0.1 µF in the same place). As drawn,
-  Ch 2 came out a little thin next to the real amp, so the model uses 2,200 pF.
+- **Volume channel C7** is 1,000 pF on the drawing (the Gain channel uses 0.1 µF in the same
+  place). As drawn, the Volume channel came out a little thin next to the real amp, so the model uses 2,200 pF.
   Going to 4,700 pF would fill it out further.
-- **Ch 1 R9** is 22K on the drawing. Compared with the real amp the Gain knob needed a
+- **Gain channel R9** is 22K on the drawing. Compared with the real amp the Gain knob needed a
   little more gain, so the model uses 33K (about +3.5 dB at every Gain setting).
 - "25K R/LOG" Gain and Volume pots are taken as reverse-log.
-- Ch 2 is played through Input 1 with Input 2 empty (its jack grounds R2).
+- The Volume channel is played through Input 1 with Input 2 empty (its jack grounds R2).
 - L1 has no value on the sheet; 3 µH is used (it only matters above the audio band).
 - The 12" drivers' parameters are typical for 1970s 12" guitar speakers, not measured.
 
