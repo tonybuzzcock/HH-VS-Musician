@@ -40,22 +40,22 @@ const CGFloat kStripTop = 250.0;
 // Main panel, left to right like the amp; then the plugin strip.
 const Ctl kCtls[] = {
     // Channel 1 (Volume channel)
-    { kCh1Volume,    kCtlKnob,      80, 112, 24, "VOLUME",   0, 0, 0 },
-    { kCh1Bass,      kCtlTone,     170, 112, 24, "BASS",     0, 0, 0 },
-    { kCh1Treble,    kCtlTone,     260, 112, 24, "TREBLE",   0, 0, 0 },
+    { kCh1Volume,    kCtlKnob,      80, 112, 22, "VOLUME",   0, 0, 0 },
+    { kCh1Bass,      kCtlTone,     170, 112, 22, "BASS",     0, 0, 0 },
+    { kCh1Treble,    kCtlTone,     260, 112, 22, "TREBLE",   0, 0, 0 },
     { kCh1Reverb,    kCtlRocker,   170, 205, 0,  "REVERB",   "OFF", "ON", 0 },
     // Channel 2 (Gain channel)
-    { kCh2Gain,      kCtlKnob,     400, 112, 24, "GAIN",     0, 0, 0 },
-    { kCh2Bass,      kCtlTone,     485, 112, 24, "BASS",     0, 0, 0 },
-    { kMiddle,       kCtlTone,     570, 112, 24, "MIDDLE",   0, 0, 0 },
-    { kCh2Treble,    kCtlTone,     655, 112, 24, "TREBLE",   0, 0, 0 },
-    { kPresence,     kCtlTone,     740, 112, 24, "PRESENCE", 0, 0, 0 },
-    { kVoice,        kCtlSelector2,830, 112, 19, "VOICE",    "LIGHT", "HEAVY", 0 },
-    { kValveSound,   kCtlSelector2,925, 112, 19, "VALVE SOUND", "OFF", "ON", 0 },
-    { kCh2Reverb,    kCtlRocker,   570, 205, 0,  "REVERB",   "OFF", "ON", 0 },
+    { kCh2Gain,      kCtlKnob,     393, 112, 22, "GAIN",     0, 0, 0 },
+    { kCh2Bass,      kCtlTone,     483, 112, 22, "BASS",     0, 0, 0 },
+    { kMiddle,       kCtlTone,     573, 112, 22, "MIDDLE",   0, 0, 0 },
+    { kCh2Treble,    kCtlTone,     663, 112, 22, "TREBLE",   0, 0, 0 },
+    { kPresence,     kCtlTone,     753, 112, 22, "PRESENCE", 0, 0, 0 },
+    { kVoice,        kCtlSelector2,845, 112, 19, "VOICE",    "LIGHT", "HEAVY", 0 },
+    { kValveSound,   kCtlSelector2,932, 112, 19, "VALVE SOUND", "OFF", "ON", 0 },
+    { kCh2Reverb,    kCtlRocker,   573, 205, 0,  "REVERB",   "OFF", "ON", 0 },
     // Master
-    { kMasterReverb, kCtlKnob,    1050, 112, 24, "REVERB",   0, 0, 0 },
-    { kMasterVolume, kCtlKnob,    1140, 112, 24, "VOLUME",   0, 0, 0 },
+    { kMasterReverb, kCtlKnob,    1050, 112, 22, "REVERB",   0, 0, 0 },
+    { kMasterVolume, kCtlKnob,    1140, 112, 22, "VOLUME",   0, 0, 0 },
     // Plugin strip
     { kChannel,      kCtlSlide3,   170, 296, 0,  "CHANNEL",  "1", "2", "1+2" },
     { kSpeaker,      kCtlRocker,   330, 296, 0,  "SPEAKER",  "OFF", "ON", 0 },
@@ -240,7 +240,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
         char num[4];
         const int n = tone ? (i < 5 ? 5 - i : i - 5) : i;
         std::snprintf (num, sizeof (num), "%d", n);
-        const NSPoint p = polar (c.cx, c.cy, c.r + 16.0, a);
+        const NSPoint p = polar (c.cx, c.cy, c.r + 15.0, a);
         drawText (num, plainFont (8.5), ink, p.x, p.y);
     }
     if (tone)

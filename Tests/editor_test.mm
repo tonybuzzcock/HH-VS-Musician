@@ -113,18 +113,18 @@ int main (int argc, char** argv)
     // Drag the Channel 2 Gain knob up 50 px: +0.25
     const float g0 = e->getParameter (e, tbvs::kCh2Gain);
     automateCalls = beginCalls = endCalls = 0;
-    mouse (win, panel, NSLeftMouseDown,    NSMakePoint (400, 112));
-    mouse (win, panel, NSLeftMouseDragged, NSMakePoint (400, 87));
-    mouse (win, panel, NSLeftMouseDragged, NSMakePoint (400, 62));
-    mouse (win, panel, NSLeftMouseUp,      NSMakePoint (400, 62));
+    mouse (win, panel, NSLeftMouseDown,    NSMakePoint (393, 112));
+    mouse (win, panel, NSLeftMouseDragged, NSMakePoint (393, 87));
+    mouse (win, panel, NSLeftMouseDragged, NSMakePoint (393, 62));
+    mouse (win, panel, NSLeftMouseUp,      NSMakePoint (393, 62));
     const float g1 = e->getParameter (e, tbvs::kCh2Gain);
     std::printf ("  Gain %.2f -> %.2f\n", g0, g1);
     check (std::fabs (g1 - (g0 + 0.25f)) < 0.02f, "dragging a knob up turns it up");
     check (automateCalls > 0 && beginCalls == 1 && endCalls == 1, "host gets begin / automate / end");
 
     // Double-click returns it to default
-    mouse (win, panel, NSLeftMouseDown, NSMakePoint (400, 112), 2);
-    mouse (win, panel, NSLeftMouseUp,   NSMakePoint (400, 112), 2);
+    mouse (win, panel, NSLeftMouseDown, NSMakePoint (393, 112), 2);
+    mouse (win, panel, NSLeftMouseUp,   NSMakePoint (393, 112), 2);
     check (std::fabs (e->getParameter (e, tbvs::kCh2Gain) - tbvs::kDefaults[tbvs::kCh2Gain]) < 1e-6f, "double-click resets a knob");
 
     // Rocker: Channel 1 Reverb, press the top half for ON
@@ -137,8 +137,8 @@ int main (int argc, char** argv)
 
     // Voice selector toggles
     const float vz = e->getParameter (e, tbvs::kVoice);
-    mouse (win, panel, NSLeftMouseDown, NSMakePoint (830, 112));
-    mouse (win, panel, NSLeftMouseUp,   NSMakePoint (830, 112));
+    mouse (win, panel, NSLeftMouseDown, NSMakePoint (845, 112));
+    mouse (win, panel, NSLeftMouseUp,   NSMakePoint (845, 112));
     check ((e->getParameter (e, tbvs::kVoice) >= 0.5f) != (vz >= 0.5f), "Voice selector changes position");
 
     // Channel slide switch to "1+2", then "1"
