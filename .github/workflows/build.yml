@@ -54,7 +54,8 @@ jobs:
           xcrun clang++ -arch x86_64 -fno-objc-arc -framework Cocoa -O1 \
             Tests/editor_test.mm -o build/editor_test
           mkdir -p build/gui
-          build/editor_test "build/$VST_NAME.vst/Contents/MacOS/HHVSMusicianReverb" build/gui
+          lldb --batch -o run -o "bt 30" -k "bt 30" -k "quit 1" -- \
+            build/editor_test "build/$VST_NAME.vst/Contents/MacOS/HHVSMusicianReverb" build/gui
 
       - name: Upload panel screenshots
         if: always()

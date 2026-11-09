@@ -75,6 +75,7 @@ static void pump (double secs)
 int main (int argc, char** argv)
 {
     if (argc < 3) { std::printf ("usage: %s <plugin binary> <png dir>\n", argv[0]); return 2; }
+    setvbuf (stdout, 0, _IONBF, 0);   // unbuffered, so a crash still shows how far it got
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     [NSApplication sharedApplication];
     const std::string dir = argv[2];
