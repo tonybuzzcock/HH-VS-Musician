@@ -421,8 +421,10 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
 {
     const NSRect box = NSMakeRect (760, 276, 412, 40);
     NSBezierPath* p = [NSBezierPath bezierPathWithRoundedRect: box xRadius: 4 yRadius: 4];
-    [rgb (232, 234, 236) set];
-    [p fill];
+    // Fluorescent lime green, like the original unit's E.L. panel, glowing brighter at the centre
+    NSGradient* glow = [[[NSGradient alloc] initWithStartingColor: rgb (206, 255, 120)
+                                                      endingColor: rgb (150, 232, 70)] autorelease];
+    [glow drawInBezierPath: p relativeCenterPosition: NSMakePoint (0.0, 0.0)];
     [rgb (60, 62, 65) set];
     [p setLineWidth: 1.0];
     [p stroke];
