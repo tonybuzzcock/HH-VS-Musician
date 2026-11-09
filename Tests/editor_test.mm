@@ -180,8 +180,8 @@ int main (int argc, char** argv)
     call (e, effMainsChanged, 0, 0);
     call (e, effClose);
     [win release];
+    [pool release];      // drain before unloading the plugin's code
     dlclose (lib);
-    [pool release];
 
     std::printf ("\n%s (%d failure%s)\n", failures ? "FAILED" : "ALL EDITOR CHECKS PASSED", failures, failures == 1 ? "" : "s");
     return failures ? 1 : 0;

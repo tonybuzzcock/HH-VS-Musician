@@ -590,14 +590,17 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
 namespace tbvs
 {
 
+// Both calls use their own autorelease pool, so nothing of this plugin's is
+// left waiting in the host's pool when the editor closes or the plugin unloads.
 void* editorOpen (void* parentView, EditorHost* host)
 {
     NSView* parent = (NSView*) parentView;
     if (! parent || ! host) return 0;
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     TBVSMusicianPanelView* v = [[TBVSMusicianPanelView alloc]
                                   initWithFrame: NSMakeRect (0, 0, kEditorWidth, kEditorHeight) host: host];
-    if (! v) return 0;
-    [parent addSubview: v];
+    if (v) [parent addSubview: v];
+    [pool release];
     return (void*) v;    // retained until editorClose
 }
 
@@ -605,9 +608,11 @@ void editorClose (void* handle)
 {
     TBVSMusicianPanelView* v = (TBVSMusicianPanelView*) handle;
     if (! v) return;
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     [v shutdown];
     [v removeFromSuperview];
     [v release];
+    [pool release];
 }
 
 } // namespace tbvs
