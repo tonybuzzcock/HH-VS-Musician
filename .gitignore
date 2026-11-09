@@ -1,0 +1,10 @@
+Tests/musician_test
+Tests/renders/
+*.o
+.DS_Store
+build/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+Tests/vst_host_test
+Tests/TBVSMusician.so
