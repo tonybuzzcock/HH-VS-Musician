@@ -8,3 +8,4 @@ xcuserdata/
 DerivedData/
 Tests/vst_host_test
 Tests/TBVSMusician.so
+Tests/preset_test

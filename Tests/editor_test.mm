@@ -80,6 +80,11 @@ int main (int argc, char** argv)
     [NSApplication sharedApplication];
     const std::string dir = argv[2];
 
+    // Keep the test's presets away from any real ones
+    const std::string presetFile = dir + "/test_presets/Presets.txt";
+    setenv ("TBVS_PRESET_FILE", presetFile.c_str(), 1);
+    std::remove (presetFile.c_str());
+
     void* lib = dlopen (argv[1], RTLD_NOW | RTLD_LOCAL);
     if (! lib) { std::printf ("dlopen failed: %s\n", dlerror()); return 1; }
     EntryProc entry = (EntryProc) dlsym (lib, "VSTPluginMain");
@@ -153,6 +158,36 @@ int main (int argc, char** argv)
     mouse (win, panel, NSLeftMouseDown, NSMakePoint (330, 306));
     mouse (win, panel, NSLeftMouseUp,   NSMakePoint (330, 306));
     check (e->getParameter (e, tbvs::kSpeaker) < 0.5f, "Speaker rocker switches off");
+
+    std::printf ("\nPresets\n");
+    // Slot k (0-based) centre
+    #define SLOT(k) NSMakePoint (672.0 + (k) * 27.0 + 12.0, 296.0)
+    e->setParameter (e, tbvs::kCh2Gain, 0.3f);
+    e->setParameter (e, tbvs::kValveSound, 1.0f);
+    pump (0.1);
+    mouse (win, panel, NSLeftMouseDown, NSMakePoint (635, 296));    // SAVE
+    mouse (win, panel, NSLeftMouseUp,   NSMakePoint (635, 296));
+    mouse (win, panel, NSLeftMouseDown, SLOT (2));                   // slot 3
+    mouse (win, panel, NSLeftMouseUp,   SLOT (2));
+    FILE* pf = std::fopen (presetFile.c_str(), "r");
+    check (pf != 0, "SAVE then a slot writes the preset file");
+    if (pf) std::fclose (pf);
+    renderPNG (panel, dir + "/panel_preset_saved.png");
+
+    e->setParameter (e, tbvs::kCh2Gain, 0.9f);
+    e->setParameter (e, tbvs::kValveSound, 0.0f);
+    pump (0.1);
+    automateCalls = 0;
+    mouse (win, panel, NSLeftMouseDown, SLOT (2));
+    mouse (win, panel, NSLeftMouseUp,   SLOT (2));
+    check (std::fabs (e->getParameter (e, tbvs::kCh2Gain) - 0.3f) < 1e-5f
+           && e->getParameter (e, tbvs::kValveSound) >= 0.5f, "clicking the slot recalls the saved settings");
+    check (automateCalls >= tbvs::kNumParams, "recall tells the host about every parameter");
+
+    const float before = e->getParameter (e, tbvs::kCh2Gain);
+    mouse (win, panel, NSLeftMouseDown, SLOT (5));                   // empty slot 6
+    mouse (win, panel, NSLeftMouseUp,   SLOT (5));
+    check (e->getParameter (e, tbvs::kCh2Gain) == before, "an empty slot changes nothing");
 
     std::printf ("\nHost automation shows on the panel\n");
     e->setParameter (e, tbvs::kMasterVolume, 0.9f);

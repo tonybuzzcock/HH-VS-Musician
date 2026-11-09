@@ -31,7 +31,7 @@ xcrun clang++ -arch x86_64 -mmacosx-version-min=$MIN_OS \
     -fno-objc-arc -Werror=unguarded-availability -Werror=unguarded-availability-new \
     -bundle -framework Cocoa \
     -Wl,-exported_symbol,_VSTPluginMain -Wl,-exported_symbol,_main_macho \
-    Source/VST2/VSMusicianVST.cpp Source/VST2/PanelView.mm \
+    Source/VST2/VSMusicianVST.cpp Source/VST2/Presets.cpp Source/VST2/PanelView.mm \
     Source/DSP/Netlist.cpp Source/DSP/SpringTank.cpp Source/DSP/MusicianAmp.cpp \
     -o "$BUNDLE/Contents/MacOS/$EXE"
 

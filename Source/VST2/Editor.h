@@ -21,6 +21,12 @@ public:
     virtual void  guiBeginEdit (int index) = 0;
     virtual void  guiSetParam (int index, float value) = 0;           // also notifies the host
     virtual void  guiEndEdit (int index) = 0;
+
+    // User presets (slots 0..kNumPresetSlots-1), stored in a file shared by every instance
+    virtual void  refreshPresets() = 0;                 // re-read the file
+    virtual bool  presetExists (int slot) const = 0;
+    virtual bool  savePreset (int slot) = 0;            // current settings -> slot
+    virtual bool  loadPreset (int slot) = 0;            // slot -> every parameter (host is told)
 };
 
 #if defined(__APPLE__)

@@ -44,8 +44,14 @@ On the Mac the plugin opens its own panel (1200 × 330): an original design laid
 out like the amp's controls, with the plugin-only controls in a strip along the
 bottom. Drag knobs up/down (hold Shift for fine control), double-click a knob to
 reset it, or use the scroll wheel. Rocker switches: press the top half for On,
-the bottom half for Off. The readout in the bottom strip shows the control you
-last touched.
+the bottom half for Off. The green readout in the bottom strip shows the control
+you last touched.
+
+**Presets:** click **SAVE**, then one of the slots **1–8**, to store every setting
+(including Channel, Speaker, Input and Output). Click a slot to recall it. Saved
+slots are dark, the slot in use lights green. Presets are kept in
+`~/Library/Application Support/TB/HH VS Musician (Reverb)/Presets.txt`, shared by
+every copy of the plugin and every session.
 
 ## What is modelled, and how
 

@@ -12,6 +12,7 @@
 
 #include "Editor.h"
 #include "Params.h"
+#include "Presets.h"
 
 #include <cmath>
 #include <cstdio>
@@ -59,9 +60,16 @@ const Ctl kCtls[] = {
     // Plugin strip
     { kChannel,      kCtlSlide3,   170, 296, 0,  "CHANNEL",  "1", "2", "1+2" },
     { kSpeaker,      kCtlRocker,   330, 296, 0,  "SPEAKER",  "OFF", "ON", 0 },
-    { kInput,        kCtlSmallKnob,470, 296, 15, "INPUT",    "-12", "+12", 0 },
-    { kOutput,       kCtlSmallKnob,600, 296, 15, "OUTPUT",   "-24", "+24", 0 },
+    { kInput,        kCtlSmallKnob,450, 296, 15, "INPUT",    "-12", "+12", 0 },
+    { kOutput,       kCtlSmallKnob,555, 296, 15, "OUTPUT",   "-24", "+24", 0 },
 };
+
+// Preset section in the strip: a SAVE button and slots 1..8, then the readout
+const NSRect kSaveRect = { { 608.0, 284.0 }, { 54.0, 24.0 } };
+const CGFloat kSlotX0 = 672.0, kSlotPitch = 27.0, kSlotW = 24.0, kSlotY = 284.0, kSlotH = 24.0;
+const NSRect kReadoutRect = { { 905.0, 276.0 }, { 267.0, 40.0 } };
+
+inline NSRect slotRect (int k) { return NSMakeRect (kSlotX0 + k * kSlotPitch, kSlotY, kSlotW, kSlotH); }
 const int kNumCtls = (int) (sizeof (kCtls) / sizeof (kCtls[0]));
 
 // Pointer angle (radians, 0 = up, clockwise positive) for a 0..1 value.
@@ -140,6 +148,10 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
     int dragCtl;
     CGFloat dragStartY, dragStartValue;
     int readoutParam;
+    bool saveMode;
+    int activePreset;
+    bool presetUsed[kNumPresetSlots];
+    char status[64];
 }
 - (id) initWithFrame: (NSRect) frame host: (EditorHost*) h;
 - (void) shutdown;
@@ -156,6 +168,11 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
         for (int i = 0; i < kNumParams; ++i) shown[i] = host->getParam (i);
         dragCtl = -1;
         readoutParam = -1;
+        saveMode = false;
+        activePreset = -1;
+        status[0] = 0;
+        host->refreshPresets();
+        for (int k = 0; k < kNumPresetSlots; ++k) presetUsed[k] = host->presetExists (k);
         timer = [[NSTimer timerWithTimeInterval: 1.0 / 20.0 target: self selector: @selector (tick:)
                                        userInfo: nil repeats: YES] retain];
         [[NSRunLoop currentRunLoop] addTimer: timer forMode: NSDefaultRunLoopMode];
@@ -419,7 +436,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
 
 - (void) drawReadout
 {
-    const NSRect box = NSMakeRect (760, 276, 412, 40);
+    const NSRect box = kReadoutRect;
     NSBezierPath* p = [NSBezierPath bezierPathWithRoundedRect: box xRadius: 4 yRadius: 4];
     // Fluorescent lime green, like the original unit's E.L. panel, glowing brighter at the centre
     NSGradient* glow = [[[NSGradient alloc] initWithStartingColor: rgb (206, 255, 120)
@@ -429,7 +446,11 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
     [p setLineWidth: 1.0];
     [p stroke];
 
-    if (readoutParam >= 0 && host)
+    if (status[0])
+    {
+        drawText (status, boldFont (14.0), [NSColor blackColor], NSMidX (box), NSMidY (box));
+    }
+    else if (readoutParam >= 0 && host)
     {
         char disp[16] = { 0 };
         host->getParamDisplay (readoutParam, disp);
@@ -443,6 +464,46 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
         else if (readoutParam == kMasterReverb || readoutParam == kMasterVolume) prefix = "MASTER  ";
         std::snprintf (text, sizeof (text), "%s%s   %s", prefix, name ? name : "", disp);
         drawText (text, boldFont (14.0), [NSColor blackColor], NSMidX (box), NSMidY (box));
+    }
+}
+
+- (void) drawPresets
+{
+    NSColor* ink = [NSColor blackColor];
+    drawText ("PRESETS", boldFont (10.0), ink, (NSMinX (kSaveRect) + NSMaxX (slotRect (kNumPresetSlots - 1))) * 0.5, 266);
+
+    // SAVE button: lit red while it is waiting for a slot
+    NSBezierPath* sp = [NSBezierPath bezierPathWithRoundedRect: kSaveRect xRadius: 3 yRadius: 3];
+    if (saveMode)
+    {
+        [rgb (200, 30, 30) set];
+        [sp fill];
+    }
+    else
+    {
+        NSGradient* g = [[[NSGradient alloc] initWithStartingColor: rgb (232, 234, 236) endingColor: rgb (160, 163, 167)] autorelease];
+        [g drawInBezierPath: sp angle: -90.0];
+    }
+    [rgb (40, 41, 43) set];
+    [sp setLineWidth: 1.0];
+    [sp stroke];
+    drawText ("SAVE", boldFont (11.0), saveMode ? [NSColor whiteColor] : ink, NSMidX (kSaveRect), NSMidY (kSaveRect));
+
+    // Slots: empty = silver, saved = charcoal, in use = lime green
+    for (int k = 0; k < kNumPresetSlots; ++k)
+    {
+        const NSRect r = slotRect (k);
+        NSBezierPath* bp = [NSBezierPath bezierPathWithRoundedRect: r xRadius: 3 yRadius: 3];
+        NSColor* fill = (k == activePreset) ? rgb (178, 245, 96) : (presetUsed[k] ? rgb (46, 47, 50) : rgb (214, 216, 219));
+        NSColor* text = (k == activePreset) ? ink : (presetUsed[k] ? [NSColor whiteColor] : rgb (120, 122, 126));
+        [fill set];
+        [bp fill];
+        [rgb (40, 41, 43) set];
+        [bp setLineWidth: 1.0];
+        [bp stroke];
+        char num[4];
+        std::snprintf (num, sizeof (num), "%d", k + 1);
+        drawText (num, boldFont (12.0), text, NSMidX (r), NSMidY (r));
     }
 }
 
@@ -484,6 +545,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
             default: break;
         }
     }
+    [self drawPresets];
     [self drawReadout];
 }
 
@@ -523,13 +585,58 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
     [self setNeedsDisplay: YES];
 }
 
+// SAVE button and preset slots. Returns YES if the click was handled here.
+- (BOOL) presetClick: (NSPoint) p
+{
+    if (NSPointInRect (p, kSaveRect))
+    {
+        saveMode = ! saveMode;
+        std::snprintf (status, sizeof (status), "%s", saveMode ? "SAVE: CLICK A SLOT 1-8" : "");
+        [self setNeedsDisplay: YES];
+        return YES;
+    }
+    for (int k = 0; k < kNumPresetSlots; ++k)
+    {
+        if (! NSPointInRect (p, slotRect (k))) continue;
+        if (saveMode)
+        {
+            const bool ok = host->savePreset (k);
+            saveMode = false;
+            host->refreshPresets();
+            for (int j = 0; j < kNumPresetSlots; ++j) presetUsed[j] = host->presetExists (j);
+            if (ok) activePreset = k;
+            std::snprintf (status, sizeof (status), ok ? "PRESET %d SAVED" : "COULD NOT SAVE PRESET %d", k + 1);
+        }
+        else
+        {
+            host->refreshPresets();
+            for (int j = 0; j < kNumPresetSlots; ++j) presetUsed[j] = host->presetExists (j);
+            if (presetUsed[k] && host->loadPreset (k))
+            {
+                for (int j = 0; j < kNumParams; ++j) shown[j] = host->getParam (j);
+                activePreset = k;
+                std::snprintf (status, sizeof (status), "PRESET %d LOADED", k + 1);
+            }
+            else
+                std::snprintf (status, sizeof (status), "PRESET %d IS EMPTY", k + 1);
+        }
+        [self setNeedsDisplay: YES];
+        return YES;
+    }
+    return NO;
+}
+
 - (void) mouseDown: (NSEvent*) e
 {
     const NSPoint p = [self convertPoint: [e locationInWindow] fromView: nil];
+    if (! host) return;
+    if ([self presetClick: p]) return;
     const int i = [self ctlAtPoint: p];
-    if (i < 0 || ! host) return;
+    if (i < 0) return;
     const Ctl& c = kCtls[i];
     readoutParam = c.param;
+    status[0] = 0;
+    activePreset = -1;     // settings are being changed away from the preset
 
     switch (c.type)
     {
@@ -609,6 +716,8 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
     if (c.type != kCtlKnob && c.type != kCtlTone && c.type != kCtlSmallKnob) return;
     const CGFloat d = [e deltaY];
     if (d == 0.0) return;
+    status[0] = 0;
+    activePreset = -1;
     host->guiBeginEdit (c.param);
     [self setParam: c.param value: (float) (shown[c.param] + d * 0.01)];
     host->guiEndEdit (c.param);

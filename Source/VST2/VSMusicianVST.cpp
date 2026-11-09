@@ -13,6 +13,7 @@
 #include "vst2_abi.h"
 #include "Params.h"
 #include "Editor.h"
+#include "Presets.h"
 #include "../DSP/MusicianAmp.h"
 
 #include <cmath>
@@ -112,6 +113,27 @@ public:
         setParameter (index, value);
         if (host && index >= 0 && index < kNumParams)
             host (&effect, audioMasterAutomate, index, 0, 0, params[index]);
+    }
+
+    void refreshPresets() { presets.load(); }
+    bool presetExists (int slot) const { return presets.has (slot); }
+    bool savePreset (int slot)
+    {
+        presets.load();                 // keep slots saved by other instances
+        presets.put (slot, params);
+        return presets.save();
+    }
+    bool loadPreset (int slot)
+    {
+        float v[kNumParams];
+        if (! presets.get (slot, v)) return false;
+        for (int i = 0; i < kNumParams; ++i)
+        {
+            guiBeginEdit (i);
+            guiSetParam (i, v[i]);
+            guiEndEdit (i);
+        }
+        return true;
     }
 
 private:
@@ -395,6 +417,7 @@ private:
     bool channel1Stale;
     void* editor;
     ERect editRect;
+    PresetStore presets;
     float scratch[kNumChannels][kScratch];
 };
 
