@@ -49,6 +49,32 @@ jobs:
             Tests/vst_host_test.cpp $DSP_SRC -o build/vst_host_test
           build/vst_host_test "build/$VST_NAME.vst/Contents/MacOS/HHVSMusicianReverb"
 
+      - name: Open the panel offscreen, drive its controls, render screenshots
+        run: |
+          xcrun clang++ -arch x86_64 -fno-objc-arc -framework Cocoa -O1 \
+            Tests/editor_test.mm -o build/editor_test
+          mkdir -p build/gui
+          build/editor_test "build/$VST_NAME.vst/Contents/MacOS/HHVSMusicianReverb" build/gui
+
+      - name: Upload panel screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: panel-screenshots
+          path: build/gui/*.png
+
+      - name: Publish panel screenshots to the gui-preview branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rm -rf /tmp/preview && mkdir /tmp/preview && cp build/gui/*.png /tmp/preview/
+          cd /tmp/preview
+          git init -q && git checkout -q -b gui-preview
+          git -c user.name="github-actions" -c user.email="actions@github.com" add .
+          git -c user.name="github-actions" -c user.email="actions@github.com" commit -q -m "Panel screenshots for $GITHUB_SHA"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gui-preview
+
       - name: Run the DSP test suite on Mac
         run: |
           xcrun clang++ -arch x86_64 -mmacosx-version-min=10.8 -std=c++98 -stdlib=libc++ -O2 \

@@ -5,11 +5,14 @@
 //   plugin-only controls (Channel, Speaker, Input, Output).
 // - Stereo in/out; each side runs its own amp. A mono source on a stereo insert
 //   runs once and is copied, halving CPU.
-// - No custom editor yet: Blue Cat PatchWork shows its generic controls.
+// - On the Mac, a custom panel (PanelView.mm) laid out like the amp; elsewhere
+//   the host shows generic controls.
 // - Reports the oversampler latency and the spring reverb tail.
-// - Plain C++98, no frameworks: builds for Mac OS X 10.8.
+// - Plain C++98; the editor uses only Cocoa APIs present in Mac OS X 10.8.
 
 #include "vst2_abi.h"
+#include "Params.h"
+#include "Editor.h"
 #include "../DSP/MusicianAmp.h"
 
 #include <cmath>
@@ -29,52 +32,14 @@ const VstInt32 kVersion     = 1000;       // 1.0.0
 const VstInt32 kNumChannels = 2;
 const char* const kPluginName = "HH VS Musician (Reverb)";
 
-enum Param
-{
-    // Front panel, left to right
-    kCh2Volume = 0, kCh2Bass, kCh2Treble, kCh2Reverb,
-    kCh1Gain, kCh1Bass, kMiddle, kCh1Treble, kPresence, kCh1Reverb,
-    kVoice, kValveSound, kMasterReverb, kMasterVolume,
-    // Plugin only
-    kChannel, kSpeaker, kInput, kOutput,
-    kNumParams
-};
+using namespace tbvs;
 
-enum Kind { kKnob, kTone, kSwitch, kVoiceSw, kChannelSel, kDb12, kDb24 };
-
-// Labels follow the owner's naming: the Volume channel is Channel 1 and the
-// Gain/V-S channel is Channel 2. (The service drawing numbers them the other
-// way round, which is what the enum and DSP names use.)
-const char* const kParamNames[kNumParams] = {
-    "1 Volume", "1 Bass", "1 Treble", "1 Reverb",
-    "2 Gain", "2 Bass", "Middle", "2 Treble", "Presence", "2 Reverb",
-    "Voice", "ValveSnd", "M Reverb", "M Volume",
-    "Channel", "Speaker", "Input", "Output"
-};
-const int kParamKind[kNumParams] = {
-    kKnob, kTone, kTone, kSwitch,
-    kKnob, kTone, kTone, kTone, kTone, kSwitch,
-    kVoiceSw, kSwitch, kKnob, kKnob,
-    kChannelSel, kSwitch, kDb12, kDb24
-};
-const float kDefaults[kNumParams] = {
-    0.5f, 0.5f, 0.5f, 0.0f,
-    0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 1.0f,
-    0.0f, 0.0f, 0.3f, 0.35f,
-    0.5f, 1.0f, 0.5f, 0.5f
-};
-
-const double kInputRangeDb  = 12.0;
-const double kOutputRangeDb = 24.0;
-
-inline bool isOn (float v) { return v >= 0.5f; }
-// Selector positions read 1 / 2 / 1+2 in the owner's numbering; returns the DSP's channel.
-inline int channelSlot (float v) { return v < (1.0f / 3.0f) ? 0 : (v < (2.0f / 3.0f) ? 1 : 2); }
+// Channel selector slot -> DSP channel ("1" is the Volume channel, the drawing's Ch 2)
 inline int channelOf (float v)
 {
     const int slot = channelSlot (v);
-    return slot == 0 ? hhvs::MusicianAmp::kChannel2      // "1": Volume channel (drawing's Ch 2)
-         : slot == 1 ? hhvs::MusicianAmp::kChannel1      // "2": Gain channel (drawing's Ch 1)
+    return slot == 0 ? hhvs::MusicianAmp::kChannel2
+         : slot == 1 ? hhvs::MusicianAmp::kChannel1
                      : hhvs::MusicianAmp::kChannelBoth;
 }
 
@@ -84,11 +49,11 @@ void copyString (char* dst, const char* src, size_t maxLen)
     dst[maxLen] = 0;
 }
 
-class VSMusicianVST
+class VSMusicianVST : public EditorHost
 {
 public:
-    explicit VSMusicianVST (audioMasterCallback)
-        : sampleRate (44100.0), channel1Stale (false)
+    explicit VSMusicianVST (audioMasterCallback hostCallback)
+        : host (hostCallback), sampleRate (44100.0), channel1Stale (false), editor (0)
     {
         std::memset (&effect, 0, sizeof (effect));
         effect.magic = kEffectMagic;
@@ -103,6 +68,9 @@ public:
         effect.numInputs = kNumChannels;
         effect.numOutputs = kNumChannels;
         effect.flags = effFlagsCanReplacing;
+#if defined(__APPLE__)
+        effect.flags |= effFlagsHasEditor;
+#endif
         effect.initialDelay = hhvs::MusicianAmp::latencySamples();
         effect.ioRatio = 1.0f;
         effect.object = this;
@@ -117,7 +85,34 @@ public:
         prepare();
     }
 
+    ~VSMusicianVST()
+    {
+#if defined(__APPLE__)
+        if (editor) editorClose (editor);
+#endif
+    }
+
     AEffect* getAEffect() { return &effect; }
+
+    //==========================================================================
+    // EditorHost
+    float getParam (int index) const
+    {
+        return (index >= 0 && index < kNumParams) ? params[index] : 0.0f;
+    }
+    void getParamDisplay (int index, char* text) const
+    {
+        if (index >= 0 && index < kNumParams) formatParam (index, text);
+        else text[0] = 0;
+    }
+    void guiBeginEdit (int index) { if (host) host (&effect, audioMasterBeginEdit, index, 0, 0, 0.0f); }
+    void guiEndEdit (int index)   { if (host) host (&effect, audioMasterEndEdit, index, 0, 0, 0.0f); }
+    void guiSetParam (int index, float value)
+    {
+        setParameter (index, value);
+        if (host && index >= 0 && index < kNumParams)
+            host (&effect, audioMasterAutomate, index, 0, 0, params[index]);
+    }
 
 private:
     //==========================================================================
@@ -218,6 +213,26 @@ private:
                 if (value) prepare();
                 return 0;
 
+#if defined(__APPLE__)
+            case effEditGetRect:
+                if (ptr)
+                {
+                    editRect.top = 0; editRect.left = 0;
+                    editRect.bottom = (short) kEditorHeight; editRect.right = (short) kEditorWidth;
+                    *(ERect**) ptr = &editRect;
+                    return 1;
+                }
+                return 0;
+            case effEditOpen:
+                if (editor) { editorClose (editor); editor = 0; }
+                if (ptr) editor = editorOpen (ptr, this);
+                return editor ? 1 : 0;
+            case effEditClose:
+                if (editor) { editorClose (editor); editor = 0; }
+                return 0;
+            case effEditIdle:
+                return 0;
+#endif
             case effGetPlugCategory:   return kPlugCategEffect;
             case effGetEffectName:
                 if (ptr) copyString ((char*) ptr, kPluginName, kVstMaxEffectNameLen);
@@ -298,16 +313,17 @@ private:
             hhvs::MusicianAmp& a = amp[c];
             switch (index)
             {
-                case kCh2Volume:    a.setCh2Volume (v); break;
-                case kCh2Bass:      a.setCh2Bass (v); break;
-                case kCh2Treble:    a.setCh2Treble (v); break;
-                case kCh2Reverb:    a.setCh2Reverb (on); break;
-                case kCh1Gain:      a.setCh1Gain (v); break;
-                case kCh1Bass:      a.setCh1Bass (v); break;
+                // Panel labels -> DSP (which uses the drawing's channel numbers)
+                case kCh1Volume:    a.setCh2Volume (v); break;
+                case kCh1Bass:      a.setCh2Bass (v); break;
+                case kCh1Treble:    a.setCh2Treble (v); break;
+                case kCh1Reverb:    a.setCh2Reverb (on); break;
+                case kCh2Gain:      a.setCh1Gain (v); break;
+                case kCh2Bass:      a.setCh1Bass (v); break;
                 case kMiddle:       a.setMiddle (v); break;
-                case kCh1Treble:    a.setCh1Treble (v); break;
+                case kCh2Treble:    a.setCh1Treble (v); break;
                 case kPresence:     a.setPresence (v); break;
-                case kCh1Reverb:    a.setCh1Reverb (on); break;
+                case kCh2Reverb:    a.setCh1Reverb (on); break;
                 case kVoice:        a.setVoiceHeavy (on); break;
                 case kValveSound:   a.setValveSound (on); break;
                 case kMasterReverb: a.setMasterReverb (v); break;
@@ -371,11 +387,14 @@ private:
     enum { kScratch = 512 };
 
     AEffect effect;
+    audioMasterCallback host;
     double sampleRate;
     float params[kNumParams];
     char programName[kVstMaxProgNameLen + 1];
     hhvs::MusicianAmp amp[kNumChannels];
     bool channel1Stale;
+    void* editor;
+    ERect editRect;
     float scratch[kNumChannels][kScratch];
 };
 

@@ -128,7 +128,15 @@ enum
     audioMasterVersion = 1,
     audioMasterCurrentId = 2,
     audioMasterIdle = 3,
-    audioMasterIOChanged = 13
+    audioMasterIOChanged = 13,
+    audioMasterBeginEdit = 43,
+    audioMasterEndEdit = 44
+};
+
+// Editor rectangle (effEditGetRect)
+struct ERect
+{
+    short top, left, bottom, right;
 };
 
 enum

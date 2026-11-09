@@ -38,6 +38,15 @@ keeps the drawing's names.
 | 17 | Input | *plugin only*: input trim | ±12 dB |
 | 18 | Output | *plugin only*: output trim | ±24 dB |
 
+## The panel
+
+On the Mac the plugin opens its own panel (1200 × 330): an original design laid
+out like the amp's controls, with the plugin-only controls in a strip along the
+bottom. Drag knobs up/down (hold Shift for fine control), double-click a knob to
+reset it, or use the scroll wheel. Rocker switches: press the top half for On,
+the bottom half for Off. The readout in the bottom strip shows the control you
+last touched.
+
 ## What is modelled, and how
 
 **From the component values on the drawing** (nodal circuit solver, 4x oversampled,

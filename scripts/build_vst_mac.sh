@@ -28,9 +28,11 @@ echo "SDK $(xcrun --show-sdk-version) at $(xcrun --show-sdk-path)"
 echo "== Compiling (x86_64, minimum Mac OS X $MIN_OS)"
 xcrun clang++ -arch x86_64 -mmacosx-version-min=$MIN_OS \
     -std=c++98 -stdlib=libc++ -O2 -fvisibility=hidden -Wall -Wextra \
-    -bundle \
+    -fno-objc-arc -Werror=unguarded-availability -Werror=unguarded-availability-new \
+    -bundle -framework Cocoa \
     -Wl,-exported_symbol,_VSTPluginMain -Wl,-exported_symbol,_main_macho \
-    Source/VST2/VSMusicianVST.cpp Source/DSP/Netlist.cpp Source/DSP/SpringTank.cpp Source/DSP/MusicianAmp.cpp \
+    Source/VST2/VSMusicianVST.cpp Source/VST2/PanelView.mm \
+    Source/DSP/Netlist.cpp Source/DSP/SpringTank.cpp Source/DSP/MusicianAmp.cpp \
     -o "$BUNDLE/Contents/MacOS/$EXE"
 
 BIN="$BUNDLE/Contents/MacOS/$EXE"
@@ -52,10 +54,14 @@ if [ "$MINOS" != "$MIN_OS" ]; then
 fi
 echo "::notice::$NAME.vst declares minimum Mac OS X $MINOS"
 
-# Only system libraries that ship with 10.8 are allowed
+# Only system libraries and frameworks that ship with 10.8 are allowed
+# (the panel uses Cocoa; -Werror=unguarded-availability above rejects any API newer than 10.8)
 echo "Linked libraries:"
 otool -L "$BIN" | tail -n +2
-BAD=$(otool -L "$BIN" | tail -n +2 | awk '{print $1}' | grep -v -E '^/usr/lib/(libc\+\+\.1|libSystem\.B)\.dylib$' || true)
+BAD=$(otool -L "$BIN" | tail -n +2 | awk '{print $1}' \
+      | grep -v -E '^/usr/lib/(libc\+\+\.1|libSystem\.B|libobjc\.A)\.dylib$' \
+      | grep -v -E '^/System/Library/Frameworks/(Cocoa|AppKit|Foundation|CoreFoundation|CoreGraphics|ApplicationServices|CoreServices|QuartzCore|CoreText)\.framework/' \
+      || true)
 if [ -n "$BAD" ]; then
     echo "::error::Unexpected library dependency: $BAD"
     exit 1
