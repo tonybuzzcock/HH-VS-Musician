@@ -103,7 +103,7 @@ private:
 
     // Power amp
     Biquad paInHP, paFbHP, paGbwLP;
-    double railPos, railNeg, vOutPrev, lastVspk, peakAmps, slewStep, rsCharge;
+    double railPos, railNeg, vOutPrev, lastVspk, peakAmps, slewStep;
     bool climHit;
 
     // Spring reverb

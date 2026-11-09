@@ -271,12 +271,12 @@ private:
         const float v = params[index];
         switch (kParamKind[index])
         {
-            case kKnob:       std::sprintf (buf, "%.1f", v * 10.0); break;
+            case kKnob:       std::snprintf (buf, sizeof (buf), "%.1f", v * 10.0); break;
             case kTone:
             {
                 double t = (v - 0.5) * 10.0;
                 if (std::fabs (t) < 0.05) t = 0.0;
-                std::sprintf (buf, t == 0.0 ? "0" : "%+.1f", t);
+                std::snprintf (buf, sizeof (buf), t == 0.0 ? "0" : "%+.1f", t);
                 break;
             }
             case kSwitch:     std::strcpy (buf, isOn (v) ? "On" : "Off"); break;
@@ -287,8 +287,8 @@ private:
                 std::strcpy (buf, c == 0 ? "1" : (c == 1 ? "2" : "1+2"));
                 break;
             }
-            case kDb12:       std::sprintf (buf, "%+.1f", (v * 2.0 - 1.0) * kInputRangeDb); break;
-            case kDb24:       std::sprintf (buf, "%+.1f", (v * 2.0 - 1.0) * kOutputRangeDb); break;
+            case kDb12:       std::snprintf (buf, sizeof (buf), "%+.1f", (v * 2.0 - 1.0) * kInputRangeDb); break;
+            case kDb24:       std::snprintf (buf, sizeof (buf), "%+.1f", (v * 2.0 - 1.0) * kOutputRangeDb); break;
             default:          buf[0] = 0; break;
         }
         copyString (text, buf, kVstMaxParamStrLen);

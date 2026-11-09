@@ -239,7 +239,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
 
         char num[4];
         const int n = tone ? (i < 5 ? 5 - i : i - 5) : i;
-        std::sprintf (num, "%d", n);
+        std::snprintf (num, sizeof (num), "%d", n);
         const NSPoint p = polar (c.cx, c.cy, c.r + 16.0, a);
         drawText (num, plainFont (8.5), ink, p.x, p.y);
     }
@@ -411,7 +411,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
         if (readoutParam <= kCh1Reverb) prefix = "CH 1  ";
         else if (readoutParam <= kCh2Reverb) prefix = "CH 2  ";
         else if (readoutParam == kMasterReverb || readoutParam == kMasterVolume) prefix = "MASTER  ";
-        std::sprintf (text, "%s%s   %s", prefix, name ? name : "", disp);
+        std::snprintf (text, sizeof (text), "%s%s   %s", prefix, name ? name : "", disp);
         drawText (text, boldFont (14.0), [NSColor blackColor], NSMidX (box), NSMidY (box));
     }
 }
@@ -460,7 +460,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
 //------------------------------------------------------------------------------
 // Mouse
 
-- (int) hitTest: (NSPoint) p
+- (int) ctlAtPoint: (NSPoint) p
 {
     for (int i = 0; i < kNumCtls; ++i)
     {
@@ -496,7 +496,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
 - (void) mouseDown: (NSEvent*) e
 {
     const NSPoint p = [self convertPoint: [e locationInWindow] fromView: nil];
-    const int i = [self hitTest: p];
+    const int i = [self ctlAtPoint: p];
     if (i < 0 || ! host) return;
     const Ctl& c = kCtls[i];
     readoutParam = c.param;
@@ -573,7 +573,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
 - (void) scrollWheel: (NSEvent*) e
 {
     const NSPoint p = [self convertPoint: [e locationInWindow] fromView: nil];
-    const int i = [self hitTest: p];
+    const int i = [self ctlAtPoint: p];
     if (i < 0 || ! host) return;
     const Ctl& c = kCtls[i];
     if (c.type != kCtlKnob && c.type != kCtlTone && c.type != kCtlSmallKnob) return;

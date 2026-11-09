@@ -55,7 +55,7 @@ double MusicianAmp::audioTaper (double x)
 MusicianAmp::MusicianAmp()
     : fsBase (44100.0), fsOs (176400.0),
       railPos (kRailNoLoad), railNeg (kRailNoLoad), vOutPrev (0.0), lastVspk (0.0),
-      peakAmps (0.0), slewStep (1.0), rsCharge (0.0), climHit (false),
+      peakAmps (0.0), slewStep (1.0), climHit (false),
       coneVPrev (0.0), cabNorm (1.0), spkMix (1.0),
       ch2Rev (false), ch1Rev (true), heavy (false), valve (false), speakerOn (true),
       channel (kChannel1),
