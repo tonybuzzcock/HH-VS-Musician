@@ -318,8 +318,8 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
         [ink set];
         [t stroke];
     }
-    drawText (c.posA, boldFont (9.0), ink, c.cx - c.r - 14.0, c.cy - c.r - 14.0);
-    drawText (c.posB, boldFont (9.0), ink, c.cx + c.r + 14.0, c.cy - c.r - 14.0);
+    drawText (c.posA, boldFont (9.0), ink, c.cx - c.r - 6.0, c.cy - c.r - 18.0);
+    drawText (c.posB, boldFont (9.0), ink, c.cx + c.r + 6.0, c.cy - c.r - 18.0);
     // Map the knob's pointer onto the two positions
     const CGFloat v = on ? (CGFloat) ((45.0 + 150.0) / 300.0) : (CGFloat) ((-45.0 + 150.0) / 300.0);
     [self drawKnobAt: NSMakePoint (c.cx, c.cy) radius: c.r value: v];
