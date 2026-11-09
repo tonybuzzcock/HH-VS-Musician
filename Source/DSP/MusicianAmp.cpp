@@ -83,8 +83,7 @@ void MusicianAmp::buildCircuits()
         n.addInput (n1, kPickupR + 10000.0);   // pickup + R1 10K
         n.addC (n1, n2, 0.1e-6);               // C1
         n.addR (n2, 0, 100000.0);              // R3
-        n.addR (o, n3, 33000.0);               // R9: 22K on the drawing; 33K gives the extra
-                                               // gain the owner's amp has by ear
+        n.addR (o, n3, 22000.0);               // R9
         n.addC (o, n3, 68.0e-12);              // C4
         n.addR (n3, n4, 2700.0);               // R8
         n.addC (n4, n5, 6.8e-6);               // C3

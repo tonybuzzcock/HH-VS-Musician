@@ -69,8 +69,6 @@ keeps the drawing's names.
 - **Volume channel C7** is 1,000 pF on the drawing (the Gain channel uses 0.1 µF in the same
   place). As drawn, the Volume channel came out a little thin next to the real amp, so the model uses 2,200 pF.
   Going to 4,700 pF would fill it out further.
-- **Gain channel R9** is 22K on the drawing. Compared with the real amp the Gain knob needed a
-  little more gain, so the model uses 33K (about +3.5 dB at every Gain setting).
 - "25K R/LOG" Gain and Volume pots are taken as reverse-log.
 - The Volume channel is played through Input 1 with Input 2 empty (its jack grounds R2).
 - L1 has no value on the sheet; 3 µH is used (it only matters above the audio band).
