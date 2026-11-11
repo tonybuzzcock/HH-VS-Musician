@@ -5,7 +5,7 @@
 //
 //   vst_host_test <path to plugin binary>
 // On macOS pass the binary inside the bundle:
-//   "HH VS Musician (Reverb).vst/Contents/MacOS/HHVSMusicianReverb"
+//   "TB VS Musician.vst/Contents/MacOS/TBVSMusician"
 
 #include "../Source/VST2/vst2_abi.h"
 #include "../Source/DSP/MusicianAmp.h"
@@ -93,7 +93,7 @@ int main (int argc, char** argv)
     std::memset (buf, 0, sizeof (buf));
     call (e, effGetEffectName, 0, 0, buf);
     std::printf ("  name: %s, latency %d samples\n", buf, e->initialDelay);
-    check (std::strcmp (buf, "HH VS Musician (Reverb)") == 0, "effect name");
+    check (std::strcmp (buf, "TB VS Musician") == 0, "effect name");
     check (call (e, effGetPlugCategory) == kPlugCategEffect, "category: effect");
     check (call (e, effGetVstVersion) == 2400, "VST 2.4");
     check (call (e, effCanDo, 0, 0, (void*) "receiveVstMidiEvent") == -1, "declines MIDI");

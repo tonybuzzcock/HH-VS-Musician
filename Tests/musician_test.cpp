@@ -1,5 +1,5 @@
 // musician_test.cpp
-// Offline checks for the HH VS Musician (Reverb) DSP. Builds on Linux or macOS:
+// Offline checks for the TB VS Musician DSP. Builds on Linux or macOS:
 //   make -C Tests run      (writes demo WAVs to Tests/renders)
 //
 // 1. Small-signal behaviour: every tone control moves the right band the right

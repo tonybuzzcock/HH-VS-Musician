@@ -1,5 +1,5 @@
 // PanelView.mm
-// The custom panel for HH VS Musician (Reverb): an original design laid out
+// The custom panel for TB VS Musician: an original design laid out
 // like the amp's controls. Opaque silver, black lettering, grey knurled knobs
 // with a red position line, rocker switches for the channel Reverb switches and
 // Speaker, a slide switch for Channel, and a strip of plugin controls along

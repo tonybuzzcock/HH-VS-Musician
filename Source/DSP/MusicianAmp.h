@@ -1,5 +1,5 @@
 // MusicianAmp.h
-// HH VS Musician (Reverb): the whole amplifier, one mono signal path.
+// TB VS Musician: model of the H/H VS Musician (Reverb), the whole amplifier, one mono signal path.
 //
 //   guitar -> [Ch 1: 2N5089/741 gain stage -> Baxandall -> 741 (1M5)] -> V-S module --+
 //          -> [Ch 2: 741 gain stage -> tone network -> 741 (1M5)] ---------------------+-> mix

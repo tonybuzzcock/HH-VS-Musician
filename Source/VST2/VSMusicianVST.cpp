@@ -1,5 +1,5 @@
 // VSMusicianVST.cpp
-// VST 2.4 wrapper for HH VS Musician (Reverb).
+// VST 2.4 wrapper for TB VS Musician.
 //
 // - Parameters follow the amp's front panel left to right, then four
 //   plugin-only controls (Channel, Speaker, Input, Output).
@@ -31,7 +31,7 @@ namespace
 const VstInt32 kUniqueID    = VST_FOURCC ('T', 'B', 'v', 's');
 const VstInt32 kVersion     = 1000;       // 1.0.0
 const VstInt32 kNumChannels = 2;
-const char* const kPluginName = "HH VS Musician (Reverb)";
+const char* const kPluginName = "TB VS Musician";
 
 using namespace tbvs;
 

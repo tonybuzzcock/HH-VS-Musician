@@ -1,8 +1,9 @@
 // Presets.h
 // Eight user preset slots, each holding every parameter, kept in one small
 // text file so all instances and sessions share them:
-//   Mac:   ~/Library/Application Support/TB/HH VS Musician (Reverb)/Presets.txt
-//   other: ~/.config/TB/HH VS Musician (Reverb)/Presets.txt
+//   Mac:   ~/Library/Application Support/TB/TB VS Musician/Presets.txt
+//   other: ~/.config/TB/TB VS Musician/Presets.txt
+// (read from the old "HH VS Musician (Reverb)" folder until the first save)
 // The TBVS_PRESET_FILE environment variable overrides the location (tests).
 // Plain C++98. File access happens only on the editor's thread, never in audio.
 
@@ -26,6 +27,7 @@ public:
     void setPath (const std::string& p) { path = p; }
     const std::string& getPath() const { return path; }
     static std::string defaultPath();
+    static std::string legacyPath();
 
     bool load();                    // re-reads the file; missing file = all slots empty
     bool save() const;              // writes every slot, creating folders as needed
@@ -36,6 +38,7 @@ public:
 
 private:
     std::string path;
+    std::string legacy;          // old preset file, read when the new one is missing
     bool used[kNumPresetSlots];
     float vals[kNumPresetSlots][kNumParams];
 };

@@ -5,13 +5,13 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>English</string>
     <key>CFBundleExecutable</key>
-    <string>HHVSMusicianReverb</string>
+    <string>TBVSMusician</string>
     <key>CFBundleIdentifier</key>
-    <string>com.tonybuzzcock.HHVSMusicianReverb</string>
+    <string>com.tonybuzzcock.TBVSMusician</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>HH VS Musician (Reverb)</string>
+    <string>TB VS Musician</string>
     <key>CFBundlePackageType</key>
     <string>BNDL</string>
     <key>CFBundleSignature</key>

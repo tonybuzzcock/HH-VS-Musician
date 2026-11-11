@@ -1,18 +1,18 @@
 #!/bin/bash
-# Builds HH VS Musician (Reverb).vst (VST 2.4, 64-bit Intel) for Mac OS X 10.8 and later,
+# Builds TB VS Musician.vst (VST 2.4, 64-bit Intel) for Mac OS X 10.8 and later,
 # then verifies the binary really declares 10.8 as its minimum and only links
 # libraries that exist on 10.8. Run on macOS (GitHub's Intel runner or any Mac
 # with Xcode command line tools):
 #
-#   scripts/build_vst_mac.sh   -> "build/HH VS Musician (Reverb).vst", build/HH-VS-Musician-Reverb-mac-vst.zip
+#   scripts/build_vst_mac.sh   -> "build/TB VS Musician.vst", build/TB-VS-Musician-mac-vst.zip
 
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 OUT=build
-NAME="HH VS Musician (Reverb)"
-EXE=HHVSMusicianReverb
-ZIP=HH-VS-Musician-Reverb-mac-vst.zip
+NAME="TB VS Musician"
+EXE=TBVSMusician
+ZIP=TB-VS-Musician-mac-vst.zip
 BUNDLE="$OUT/$NAME.vst"
 MIN_OS=10.8
 

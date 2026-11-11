@@ -28,7 +28,7 @@ namespace
 }
 
 PresetStore::PresetStore()
-    : path (defaultPath())
+    : path (defaultPath()), legacy (legacyPath())
 {
     for (int s = 0; s < kNumPresetSlots; ++s)
     {
@@ -44,6 +44,21 @@ std::string PresetStore::defaultPath()
     const char* home = std::getenv ("HOME");
     std::string base = (home && *home) ? home : "/tmp";
 #if defined(__APPLE__)
+    return base + "/Library/Application Support/TB/TB VS Musician/Presets.txt";
+#else
+    return base + "/.config/TB/TB VS Musician/Presets.txt";
+#endif
+}
+
+// Where presets were kept when the plugin was called "HH VS Musician (Reverb)".
+// They are read from there until the first save writes the new file.
+std::string PresetStore::legacyPath()
+{
+    const char* over = std::getenv ("TBVS_PRESET_FILE");
+    if (over && *over) return std::string();
+    const char* home = std::getenv ("HOME");
+    std::string base = (home && *home) ? home : "/tmp";
+#if defined(__APPLE__)
     return base + "/Library/Application Support/TB/HH VS Musician (Reverb)/Presets.txt";
 #else
     return base + "/.config/TB/HH VS Musician (Reverb)/Presets.txt";
@@ -55,6 +70,7 @@ bool PresetStore::load()
     for (int s = 0; s < kNumPresetSlots; ++s) used[s] = false;
 
     FILE* f = std::fopen (path.c_str(), "r");
+    if (! f && ! legacy.empty()) f = std::fopen (legacy.c_str(), "r");
     if (! f) return false;
 
     char line[1024];
@@ -98,7 +114,7 @@ bool PresetStore::save() const
     FILE* f = std::fopen (tmp.c_str(), "w");
     if (! f) return false;
     std::fprintf (f, "%s\n", kHeader);
-    std::fprintf (f, "# HH VS Musician (Reverb) presets. One line per slot; values 0..1 in parameter order.\n");
+    std::fprintf (f, "# TB VS Musician presets. One line per slot; values 0..1 in parameter order.\n");
     for (int s = 0; s < kNumPresetSlots; ++s)
     {
         if (! used[s]) continue;

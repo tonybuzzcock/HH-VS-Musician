@@ -12,8 +12,8 @@ permissions:
 
 env:
   DSP_SRC: Source/DSP/Netlist.cpp Source/DSP/SpringTank.cpp Source/DSP/MusicianAmp.cpp
-  VST_NAME: HH VS Musician (Reverb)
-  VST_ZIP: HH-VS-Musician-Reverb-mac-vst.zip
+  VST_NAME: TB VS Musician
+  VST_ZIP: TB-VS-Musician-mac-vst.zip
 
 jobs:
   linux-tests:
@@ -35,7 +35,7 @@ jobs:
           path: Tests/renders/*.wav
 
   mac-vst:
-    name: VS Musician (Reverb).vst for Mac OS X 10.8 (Intel)
+    name: TB VS Musician.vst for Mac OS X 10.8 (Intel)
     runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
@@ -47,14 +47,14 @@ jobs:
         run: |
           xcrun clang++ -arch x86_64 -mmacosx-version-min=10.8 -std=c++98 -stdlib=libc++ -O2 \
             Tests/vst_host_test.cpp $DSP_SRC -o build/vst_host_test
-          build/vst_host_test "build/$VST_NAME.vst/Contents/MacOS/HHVSMusicianReverb"
+          build/vst_host_test "build/$VST_NAME.vst/Contents/MacOS/TBVSMusician"
 
       - name: Open the panel offscreen, drive its controls, render screenshots
         run: |
           xcrun clang++ -arch x86_64 -fno-objc-arc -framework Cocoa -O1 \
             Tests/editor_test.mm -o build/editor_test
           mkdir -p build/gui
-          build/editor_test "build/$VST_NAME.vst/Contents/MacOS/HHVSMusicianReverb" build/gui
+          build/editor_test "build/$VST_NAME.vst/Contents/MacOS/TBVSMusician" build/gui
 
       - name: Upload panel screenshots
         if: always()
@@ -85,7 +85,7 @@ jobs:
       - name: Upload the plugin
         uses: actions/upload-artifact@v4
         with:
-          name: HH-VS-Musician-Reverb-mac-vst
+          name: TB-VS-Musician-mac-vst
           path: build/${{ env.VST_ZIP }}
 
       - name: Attach to GitHub Release (tagged builds only)
@@ -94,6 +94,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" "build/$VST_ZIP" \
-            --title "HH VS Musician (Reverb) $GITHUB_REF_NAME" \
-            --notes "VST 2.4 plugin, 64-bit Intel, Mac OS X 10.8 and later. Unzip and copy \"HH VS Musician (Reverb).vst\" to /Library/Audio/Plug-Ins/VST." \
+            --title "TB VS Musician $GITHUB_REF_NAME" \
+            --notes "VST 2.4 plugin, 64-bit Intel, Mac OS X 10.8 and later. Unzip and copy \"TB VS Musician.vst\" to /Library/Audio/Plug-Ins/VST." \
           || gh release upload "$GITHUB_REF_NAME" "build/$VST_ZIP" --clobber

@@ -1,4 +1,4 @@
-# HH VS Musician (Reverb)
+# TB VS Musician
 
 A VST 2.4 plugin model of the H/H VS Musician (Reverb) 100 W solid-state guitar
 amplifier, built from its service drawing (C/AC00014, in `Docs/`) and the
@@ -50,8 +50,9 @@ you last touched.
 **Presets:** click **SAVE**, then one of the slots **1–8**, to store every setting
 (including Channel, Speaker, Input and Output). Click a slot to recall it. Saved
 slots are dark, the slot in use lights green. Presets are kept in
-`~/Library/Application Support/TB/HH VS Musician (Reverb)/Presets.txt`, shared by
-every copy of the plugin and every session.
+`~/Library/Application Support/TB/TB VS Musician/Presets.txt`, shared by
+every copy of the plugin and every session. (Presets saved when the plugin was
+called HH VS Musician (Reverb) are read from the old folder until you next save.)
 
 ## What is modelled, and how
 
@@ -91,10 +92,13 @@ every copy of the plugin and every session.
 
 ## Install
 
-1. GitHub → **Actions** → latest green run → **Artifacts** → download `HH-VS-Musician-Reverb-mac-vst`
-2. Unzip it, then unzip `HH-VS-Musician-Reverb-mac-vst.zip` inside
-3. Copy `HH VS Musician (Reverb).vst` to `/Library/Audio/Plug-Ins/VST/`
-4. In Pro Tools 11, insert Blue Cat PatchWork, rescan, and load **HH VS Musician (Reverb)**
+1. GitHub → **Actions** → latest green run → **Artifacts** → download `TB-VS-Musician-mac-vst`
+2. Unzip it, then unzip `TB-VS-Musician-mac-vst.zip` inside
+3. Delete the old `HH VS Musician (Reverb).vst` from `/Library/Audio/Plug-Ins/VST/` if it's
+   there, then copy `TB VS Musician.vst` in
+4. In Pro Tools 11, insert Blue Cat PatchWork, rescan, and load **TB VS Musician**
+
+The plugin keeps its VST ID, so sessions saved with the old name still find it.
 
 The plugin reports 40 samples of latency so Pro Tools can compensate.
 
@@ -108,3 +112,5 @@ scripts/build_vst_mac.sh # on a Mac: builds and verifies the 10.8 bundle
 
 "VST" is a trademark of Steinberg Media Technologies GmbH. This project is an
 independent model made for personal use and is not affiliated with H/H Electronic.
+
+The modern Mac version (CLAP, VST3, AU) is [TB-VS-Musician-2026-MAC](https://github.com/tonybuzzcock/TB-VS-Musician-2026-MAC).
