@@ -237,7 +237,7 @@ void drawTextLeft (const char* s, NSFont* font, NSColor* color, CGFloat x, CGFlo
     drawText ("100 WATTS", plainFont (10.0), ink, 1095, 213);
 
     // The TB electronic logo in the strip's corner, straight on the silver
-    tblogo::drawTBLogo (NSMakeRect (14.0, 258.0, 108.0, 64.0));
+    tblogo::drawTBLogo (NSMakeRect (12.0, 260.0, 96.0, 62.0));
 }
 
 - (void) drawScaleForCtl: (const Ctl&) c
