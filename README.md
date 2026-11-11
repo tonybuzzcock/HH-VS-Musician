@@ -92,8 +92,8 @@ called HH VS Musician (Reverb) are read from the old folder until you next save.
 
 ## Install
 
-1. GitHub → **Actions** → latest green run → **Artifacts** → download `TB-VS-Musician-mac-vst`
-2. Unzip it, then unzip `TB-VS-Musician-mac-vst.zip` inside
+1. GitHub → **Actions** → latest green run → **Artifacts** → download `TB-VS-Musician-mountain-lion-vst`
+2. Unzip it, then unzip `TB-VS-Musician-mountain-lion-vst.zip` inside
 3. Delete the old `HH VS Musician (Reverb).vst` from `/Library/Audio/Plug-Ins/VST/` if it's
    there, then copy `TB VS Musician.vst` in
 4. In Pro Tools 11, insert Blue Cat PatchWork, rescan, and load **TB VS Musician**

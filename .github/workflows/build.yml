@@ -13,7 +13,7 @@ permissions:
 env:
   DSP_SRC: Source/DSP/Netlist.cpp Source/DSP/SpringTank.cpp Source/DSP/MusicianAmp.cpp
   VST_NAME: TB VS Musician
-  VST_ZIP: TB-VS-Musician-mac-vst.zip
+  VST_ZIP: TB-VS-Musician-mountain-lion-vst.zip
 
 jobs:
   linux-tests:
@@ -34,8 +34,8 @@ jobs:
           name: demo-renders
           path: Tests/renders/*.wav
 
-  mac-vst:
-    name: TB VS Musician.vst for Mac OS X 10.8 (Intel)
+  mountain-lion-vst:
+    name: TB VS Musician.vst for OS X 10.8 Mountain Lion (Intel)
     runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +75,7 @@ jobs:
           git -c user.name="github-actions" -c user.email="actions@github.com" commit -q -m "Panel screenshots for $GITHUB_SHA"
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gui-preview
 
-      - name: Run the DSP test suite on Mac
+      - name: Run the DSP test suite on the Intel runner
         run: |
           xcrun clang++ -arch x86_64 -mmacosx-version-min=10.8 -std=c++98 -stdlib=libc++ -O2 \
             $DSP_SRC Tests/musician_test.cpp -o build/musician_test
@@ -85,7 +85,7 @@ jobs:
       - name: Upload the plugin
         uses: actions/upload-artifact@v4
         with:
-          name: TB-VS-Musician-mac-vst
+          name: TB-VS-Musician-mountain-lion-vst
           path: build/${{ env.VST_ZIP }}
 
       - name: Attach to GitHub Release (tagged builds only)
@@ -95,5 +95,5 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" "build/$VST_ZIP" \
             --title "TB VS Musician $GITHUB_REF_NAME" \
-            --notes "VST 2.4 plugin, 64-bit Intel, Mac OS X 10.8 and later. Unzip and copy \"TB VS Musician.vst\" to /Library/Audio/Plug-Ins/VST." \
+            --notes "VST 2.4 plugin, 64-bit Intel, OS X 10.8 Mountain Lion and later. Unzip and copy \"TB VS Musician.vst\" to /Library/Audio/Plug-Ins/VST." \
           || gh release upload "$GITHUB_REF_NAME" "build/$VST_ZIP" --clobber

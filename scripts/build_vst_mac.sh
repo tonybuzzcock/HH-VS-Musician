@@ -4,7 +4,7 @@
 # libraries that exist on 10.8. Run on macOS (GitHub's Intel runner or any Mac
 # with Xcode command line tools):
 #
-#   scripts/build_vst_mac.sh   -> "build/TB VS Musician.vst", build/TB-VS-Musician-mac-vst.zip
+#   scripts/build_vst_mac.sh   -> "build/TB VS Musician.vst", build/TB-VS-Musician-mountain-lion-vst.zip
 
 set -euo pipefail
 
@@ -12,7 +12,7 @@ cd "$(dirname "$0")/.."
 OUT=build
 NAME="TB VS Musician"
 EXE=TBVSMusician
-ZIP=TB-VS-Musician-mac-vst.zip
+ZIP=TB-VS-Musician-mountain-lion-vst.zip
 BUNDLE="$OUT/$NAME.vst"
 MIN_OS=10.8
 
