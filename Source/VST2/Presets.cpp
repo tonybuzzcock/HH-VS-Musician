@@ -25,6 +25,29 @@ namespace
             if (i == dir.size() || dir[i] == '/')
                 mkdir (dir.substr (0, i).c_str(), 0755);   // existing folders just fail harmlessly
     }
+
+    // One line of printable characters, trimmed, at most kMaxPresetName long
+    std::string cleanName (const std::string& in)
+    {
+        std::string out;
+        for (std::string::size_type i = 0; i < in.size(); ++i)
+        {
+            const unsigned char c = (unsigned char) in[i];
+            if (c == '\n' || c == '\r' || c == '\t') out += ' ';
+            else if (c >= 32 && c != 127) out += (char) c;      // UTF-8 bytes pass through
+        }
+        std::string::size_type a = out.find_first_not_of (' ');
+        if (a == std::string::npos) return std::string();
+        std::string::size_type b = out.find_last_not_of (' ');
+        out = out.substr (a, b - a + 1);
+        if (out.size() > (std::string::size_type) kMaxPresetName)
+        {
+            std::string::size_type n = kMaxPresetName;
+            while (n > 0 && (((unsigned char) out[n]) & 0xC0) == 0x80) --n;   // don't split a UTF-8 character
+            out = out.substr (0, n);
+        }
+        return out;
+    }
 }
 
 PresetStore::PresetStore()
@@ -67,7 +90,7 @@ std::string PresetStore::legacyPath()
 
 bool PresetStore::load()
 {
-    for (int s = 0; s < kNumPresetSlots; ++s) used[s] = false;
+    for (int s = 0; s < kNumPresetSlots; ++s) { used[s] = false; names[s].clear(); }
 
     FILE* f = std::fopen (path.c_str(), "r");
     if (! f && ! legacy.empty()) f = std::fopen (legacy.c_str(), "r");
@@ -84,6 +107,14 @@ bool PresetStore::load()
             continue;
         }
         int slot = -1, used0 = 0;
+        if (std::sscanf (line, "name %d:%n", &slot, &used0) == 1 && slot >= 1 && slot <= kNumPresetSlots && used0 > 0)
+        {
+            std::string n (line + used0);
+            if (! n.empty() && n[0] == ' ') n.erase (0, 1);
+            names[slot - 1] = cleanName (n);
+            continue;
+        }
+        slot = -1; used0 = 0;
         if (std::sscanf (line, "slot %d:%n", &slot, &used0) != 1 || slot < 1 || slot > kNumPresetSlots)
             continue;
 
@@ -114,13 +145,14 @@ bool PresetStore::save() const
     FILE* f = std::fopen (tmp.c_str(), "w");
     if (! f) return false;
     std::fprintf (f, "%s\n", kHeader);
-    std::fprintf (f, "# TB VS Musician presets. One line per slot; values 0..1 in parameter order.\n");
+    std::fprintf (f, "# TB VS Musician presets. One line per slot; values 0..1 in parameter order; then its name.\n");
     for (int s = 0; s < kNumPresetSlots; ++s)
     {
         if (! used[s]) continue;
         std::fprintf (f, "slot %d:", s + 1);
         for (int i = 0; i < kNumParams; ++i) std::fprintf (f, " %.6f", vals[s][i]);
         std::fprintf (f, "\n");
+        if (! names[s].empty()) std::fprintf (f, "name %d: %s\n", s + 1, names[s].c_str());
     }
     const bool ok = std::fclose (f) == 0;
     if (! ok) { std::remove (tmp.c_str()); return false; }
@@ -144,6 +176,17 @@ void PresetStore::put (int slot, const float values[kNumParams])
     if (slot < 0 || slot >= kNumPresetSlots) return;
     for (int i = 0; i < kNumParams; ++i) vals[slot][i] = values[i];
     used[slot] = true;
+}
+
+std::string PresetStore::name (int slot) const
+{
+    return has (slot) ? names[slot] : std::string();
+}
+
+void PresetStore::setName (int slot, const std::string& n)
+{
+    if (slot < 0 || slot >= kNumPresetSlots) return;
+    names[slot] = cleanName (n);
 }
 
 } // namespace tbvs

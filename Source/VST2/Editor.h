@@ -27,6 +27,8 @@ public:
     virtual bool  presetExists (int slot) const = 0;
     virtual bool  savePreset (int slot) = 0;            // current settings -> slot
     virtual bool  loadPreset (int slot) = 0;            // slot -> every parameter (host is told)
+    virtual void  presetName (int slot, char* text, int size) const = 0;   // "" if none
+    virtual bool  renamePreset (int slot, const char* name) = 0;           // saved to the file
 };
 
 #if defined(__APPLE__)

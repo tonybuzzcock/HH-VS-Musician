@@ -1,5 +1,5 @@
 // Presets.h
-// Eight user preset slots, each holding every parameter, kept in one small
+// Eight user preset slots, each holding every parameter and a name, kept in one small
 // text file so all instances and sessions share them:
 //   Mac:   ~/Library/Application Support/TB/TB VS Musician/Presets.txt
 //   other: ~/.config/TB/TB VS Musician/Presets.txt
@@ -17,7 +17,7 @@
 namespace tbvs
 {
 
-enum { kNumPresetSlots = 8 };
+enum { kNumPresetSlots = 8, kMaxPresetName = 40 };
 
 class PresetStore
 {
@@ -34,13 +34,18 @@ public:
 
     bool has (int slot) const;
     bool get (int slot, float values[kNumParams]) const;
-    void put (int slot, const float values[kNumParams]);
+    void put (int slot, const float values[kNumParams]);   // keeps the slot's name
+
+    // A name per slot (up to kMaxPresetName characters, printable, one line)
+    std::string name (int slot) const;
+    void setName (int slot, const std::string& n);
 
 private:
     std::string path;
     std::string legacy;          // old preset file, read when the new one is missing
     bool used[kNumPresetSlots];
     float vals[kNumPresetSlots][kNumParams];
+    std::string names[kNumPresetSlots];
 };
 
 } // namespace tbvs

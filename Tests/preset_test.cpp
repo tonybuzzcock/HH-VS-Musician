@@ -51,6 +51,42 @@ int main()
     PresetStore c; c.setPath (file); c.load();
     check (c.has (0) && c.has (2) && c.has (7), "slots from different instances are kept");
 
+    // Names: saved, reloaded, kept when the slot's settings are saved again,
+    // cleaned (one line, trimmed, 40 characters at most)
+    c.setName (2, "  Big slow flange\nwith POS  ");
+    c.setName (7, "Slapback");
+    c.save();
+    PresetStore nm; nm.setPath (file); nm.load();
+    check (nm.name (2) == "Big slow flange with POS" && nm.name (7) == "Slapback" && nm.name (0).empty(),
+           "names round-trip, cleaned to one line");
+    nm.put (2, v2); nm.save();
+    PresetStore nm2; nm2.setPath (file); nm2.load();
+    check (nm2.name (2) == "Big slow flange with POS", "re-saving a slot keeps its name");
+    nm2.setName (7, std::string (60, 'x'));
+    check (nm2.name (7).size() == (size_t) kMaxPresetName, "long names cut to 40 characters");
+    nm2.setName (7, "");
+    nm2.save();
+    PresetStore nm3; nm3.setPath (file); nm3.load();
+    check (nm3.has (7) && nm3.name (7).empty(), "a name can be cleared");
+
+    // Names: saved, reloaded, kept when the slot's settings are saved again,
+    // cleaned (one line, trimmed, 40 characters at most)
+    c.setName (2, "  Big slow flange\nwith POS  ");
+    c.setName (7, "Slapback");
+    c.save();
+    PresetStore n; n.setPath (file); n.load();
+    check (n.name (2) == "Big slow flange with POS" && n.name (7) == "Slapback" && n.name (0).empty(),
+           "names round-trip, cleaned to one line");
+    n.put (2, v2); n.save();
+    PresetStore n2; n2.setPath (file); n2.load();
+    check (n2.name (2) == "Big slow flange with POS", "re-saving a slot keeps its name");
+    n2.setName (7, std::string (60, 'x'));
+    check (n2.name (7).size() == (size_t) kMaxPresetName, "long names cut to 40 characters");
+    n2.setName (7, "");
+    n2.save();
+    PresetStore n3; n3.setPath (file); n3.load();
+    check (n3.has (7) && n3.name (7).empty(), "a name can be cleared");
+
     // Damaged lines are skipped, out-of-range values clamped, short lines padded
     FILE* f = std::fopen (file.c_str(), "a");
     std::fprintf (f, "slot 99: 0.5 0.5\nslot 5: rubbish\nslot 4: 7.0 -3.0 0.25\n");

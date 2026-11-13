@@ -19,6 +19,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <string>
 
 #if defined(__SSE__) || defined(__x86_64__) || defined(_M_X64)
   #include <xmmintrin.h>
@@ -121,6 +122,20 @@ public:
     {
         presets.load();                 // keep slots saved by other instances
         presets.put (slot, params);
+        return presets.save();
+    }
+    void presetName (int slot, char* text, int size) const
+    {
+        if (! text || size <= 0) return;
+        const std::string n = presets.name (slot);
+        std::strncpy (text, n.c_str(), (size_t) size - 1);
+        text[size - 1] = 0;
+    }
+    bool renamePreset (int slot, const char* name)
+    {
+        presets.load();                 // keep slots saved by other instances
+        if (! presets.has (slot)) return false;
+        presets.setName (slot, name ? name : "");
         return presets.save();
     }
     bool loadPreset (int slot)
